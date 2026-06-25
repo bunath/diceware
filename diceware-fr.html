@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diceware FR — Recherche</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
+
+  :root {
+    --bg: #0d0d0d;
+    --surface: #141414;
+    --border: #2a2a2a;
+    --accent: #e8ff47;
+    --accent2: #ff6b35;
+    --text: #f0f0f0;
+    --muted: #555;
+    --card: #1a1a1a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  header {
+    width: 100%;
+    max-width: 900px;
+    padding: 60px 24px 32px;
+    text-align: center;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    font-weight: 800;
+    letter-spacing: -2px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 48px;
+  }
+
+  .search-wrap {
+    width: 100%;
+    max-width: 600px;
+    padding: 0 24px;
+    margin-bottom: 40px;
+    position: relative;
+  }
+
+  .search-label {
+    display: block;
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .search-box {
+    display: flex;
+    gap: 0;
+    border: 2px solid var(--border);
+    border-radius: 0;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .search-box:focus-within { border-color: var(--accent); }
+
+  #searchInput {
+    flex: 1;
+    background: var(--surface);
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 1.5rem;
+    padding: 16px 20px;
+    letter-spacing: 4px;
+    width: 100%;
+  }
+  #searchInput::placeholder { color: var(--muted); letter-spacing: 2px; }
+
+  .dice-btn {
+    background: var(--accent);
+    border: none;
+    cursor: pointer;
+    padding: 16px 20px;
+    font-size: 1.2rem;
+    color: #000;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+  .dice-btn:hover { background: var(--accent2); }
+
+  #result {
+    width: 100%;
+    max-width: 600px;
+    padding: 0 24px;
+    margin-bottom: 48px;
+    min-height: 120px;
+  }
+
+  .result-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 28px 32px;
+    border-left: 4px solid var(--accent);
+    animation: slideIn 0.15s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-code {
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .result-word {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 10vw, 4rem);
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -1px;
+  }
+
+  .result-error {
+    border-left-color: var(--accent2);
+  }
+  .result-error .result-word {
+    color: var(--accent2);
+    font-size: 1.2rem;
+    font-weight: 400;
+  }
+
+  .result-multi {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .result-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 12px 18px;
+    border-left: 3px solid var(--accent);
+  }
+  .chip-code { font-size: 0.6rem; color: var(--muted); letter-spacing: 2px; }
+  .chip-word {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  /* Passphrase generator */
+  .passgen {
+    width: 100%;
+    max-width: 600px;
+    padding: 0 24px;
+    margin-bottom: 48px;
+  }
+
+  .passgen-title {
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .passgen-controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .nb-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 1px;
+  }
+  .nb-btn.active, .nb-btn:hover {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+  }
+
+  .gen-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    padding: 8px 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 1px;
+    margin-left: auto;
+  }
+  .gen-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  #passResult {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .pass-word {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .pass-sep { color: var(--muted); font-size: 1rem; }
+  .pass-empty { color: var(--muted); font-size: 0.75rem; letter-spacing: 2px; }
+
+  .copy-btn {
+    margin-left: auto;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    padding: 6px 12px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .copy-btn.copied { color: var(--accent); border-color: var(--accent); }
+
+  /* Status */
+  #status {
+    text-align: center;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 32px;
+    text-transform: uppercase;
+  }
+  .dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    margin-right: 8px;
+    vertical-align: middle;
+    animation: blink 1s infinite;
+  }
+  .dot.ok { background: var(--accent); animation: none; }
+  .dot.err { background: var(--accent2); animation: none; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  /* Quick tip */
+  .tip {
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-top: 10px;
+    letter-spacing: 1px;
+  }
+
+  footer {
+    margin-top: auto;
+    padding: 24px;
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-align: center;
+  }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>DICE<span>WARE</span></h1>
+  <p class="subtitle">Liste française — 7776 mots — 5 jets de dés</p>
+</header>
+
+<div id="status">
+  <span class="dot" id="statusDot"></span>
+  <span id="statusText">Chargement de la liste…</span>
+</div>
+
+<!-- RECHERCHE PAR CODE -->
+<div class="search-wrap">
+  <label class="search-label" for="searchInput">Entrez un code (ex: 23456) ou plusieurs séparés par espaces</label>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="11111" maxlength="5" inputmode="numeric" autocomplete="off" spellcheck="false">
+    <button class="dice-btn" title="Lancer les dés" onclick="rollDice()">🎲</button>
+  </div>
+  <p class="tip">Codes valides : 5 chiffres de 1 à 6 uniquement (ex: 13456, 24512…)</p>
+</div>
+
+<div id="result"></div>
+
+<!-- GÉNÉRATEUR DE PASSPHRASE -->
+<div class="passgen">
+  <p class="passgen-title">Générateur de passphrase</p>
+  <div class="passgen-controls">
+    <button class="nb-btn" onclick="setNbWords(4)">4 mots</button>
+    <button class="nb-btn active" onclick="setNbWords(5)">5 mots</button>
+    <button class="nb-btn" onclick="setNbWords(6)">6 mots</button>
+    <button class="nb-btn" onclick="setNbWords(7)">7 mots</button>
+    <button class="gen-btn" onclick="generatePass()">↻ Générer</button>
+  </div>
+  <div id="passResult">
+    <span class="pass-empty">— cliquez sur Générer —</span>
+  </div>
+</div>
+
+<footer>
+  Liste par <a href="https://github.com/chmduquesne/diceware-fr" target="_blank">Christophe-Marie Duquesne</a> · CC-BY-3.0
+</footer>
+
+<script>
+const DICT_URL = 'https://cdn.jsdelivr.net/gh/mbelivo/diceware-wordlists-fr@master/wordlist_fr_5d.txt';
+let dict = {}; // code -> word
+let loaded = false;
+let nbWords = 5;
+
+async function loadDict() {
+  try {
+    const r = await fetch(DICT_URL);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const text = await r.text();
+    const lines = text.trim().split('\n');
+    for (const line of lines) {
+      const parts = line.trim().split(/\s+/);
+      if (parts.length >= 2 && /^[1-6]{5}$/.test(parts[0])) {
+        const word = parts.slice(1).join(' ');
+        // Garder seulement les vrais mots (lettres uniquement)
+        if (/^[a-zA-ZÀ-ÿ\-']+$/.test(word)) {
+          dict[parts[0]] = word;
+        }
+      }
+    }
+    const count = Object.keys(dict).length;
+    loaded = true;
+    setStatus('ok', count + ' mots chargés');
+  } catch (e) {
+    setStatus('err', 'Erreur de chargement — ' + e.message);
+  }
+}
+
+function setStatus(type, msg) {
+  document.getElementById('statusDot').className = 'dot ' + type;
+  document.getElementById('statusText').textContent = msg;
+}
+
+function lookup(code) {
+  if (!loaded) return null;
+  return dict[code] || null;
+}
+
+function isValidCode(s) {
+  return /^[1-6]{5}$/.test(s);
+}
+
+function search() {
+  const raw = document.getElementById('searchInput').value.trim();
+  const resultEl = document.getElementById('result');
+  if (!raw) { resultEl.innerHTML = ''; return; }
+
+  if (!loaded) {
+    resultEl.innerHTML = `<div class="result-card result-error"><div class="result-code">Erreur</div><div class="result-word">Liste pas encore chargée</div></div>`;
+    return;
+  }
+
+  const codes = raw.split(/\s+/).filter(Boolean);
+
+  if (codes.length === 1) {
+    const code = codes[0];
+    if (!isValidCode(code)) {
+      resultEl.innerHTML = `<div class="result-card result-error"><div class="result-code">Code invalide</div><div class="result-word">5 chiffres de 1 à 6 requis</div></div>`;
+      return;
+    }
+    const word = lookup(code);
+    if (word) {
+      resultEl.innerHTML = `<div class="result-card"><div class="result-code">${code}</div><div class="result-word">${word}</div></div>`;
+    } else {
+      resultEl.innerHTML = `<div class="result-card result-error"><div class="result-code">${code}</div><div class="result-word">Introuvable</div></div>`;
+    }
+  } else {
+    // Plusieurs codes
+    const chips = codes.map(code => {
+      if (!isValidCode(code)) {
+        return `<div class="result-chip" style="border-left-color:var(--accent2)"><div class="chip-code">${code}</div><div class="chip-word" style="color:var(--accent2)">invalide</div></div>`;
+      }
+      const word = lookup(code);
+      return `<div class="result-chip"><div class="chip-code">${code}</div><div class="chip-word">${word || '?'}</div></div>`;
+    }).join('');
+    resultEl.innerHTML = `<div class="result-card" style="border-left-color:var(--muted)"><div class="result-code" style="margin-bottom:16px">Résultats (${codes.length} codes)</div><div class="result-multi">${chips}</div></div>`;
+  }
+}
+
+function rollDice() {
+  // Génère un code aléatoire sécurisé et le met dans le champ
+  const arr = new Uint8Array(5);
+  crypto.getRandomValues(arr);
+  const code = Array.from(arr).map(b => (b % 6) + 1).join('');
+  document.getElementById('searchInput').value = code;
+  search();
+}
+
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  const allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab'];
+  if (!allowed.includes(e.key) && !/[1-6]/.test(e.key)) e.preventDefault();
+  if (e.key === 'Enter') search();
+});
+document.getElementById('searchInput').addEventListener('input', search);
+
+function setNbWords(n) {
+  nbWords = n;
+  document.querySelectorAll('.nb-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent === n + ' mots');
+  });
+}
+
+function generatePass() {
+  if (!loaded) return;
+  const words = [];
+  const codes = [];
+  for (let i = 0; i < nbWords; i++) {
+    const arr = new Uint8Array(5);
+    crypto.getRandomValues(arr);
+    const code = Array.from(arr).map(b => (b % 6) + 1).join('');
+    codes.push(code);
+    const w = dict[code];
+    if (w) words.push(w);
+  }
+
+  if (words.length === 0) return;
+
+  const passEl = document.getElementById('passResult');
+  const passStr = words.join(' ');
+
+  let html = '';
+  words.forEach((w, i) => {
+    html += `<span class="pass-word" title="${codes[i]}">${w}</span>`;
+    if (i < words.length - 1) html += `<span class="pass-sep">·</span>`;
+  });
+  html += `<button class="copy-btn" onclick="copyPass('${passStr}', this)">COPIER</button>`;
+  passEl.innerHTML = html;
+}
+
+function copyPass(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'COPIÉ ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'COPIER'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+loadDict();
+</script>
+</body>
+</html>
