@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Diceware FR — Recherche</title>
 <style>
-#result{min-height:116px;margin-bottom:30px}.result-card{background:linear-gradient(135deg,#191919,#151515);border:1px solid var(--border);border-left:4px solid var(--accent);padding:26px 28px;animation:slideIn .18s ease}@keyframes slideIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}.result-code{font-size:.67rem;letter-spacing:2.5px;color:#777;text-transform:uppercase;margin-bottom:7px}.result-word{font-family:'Syne',sans-serif;font-size:clamp(2.4rem,9vw,4.2rem);font-weight:800;color:var(--accent);letter-spacing:-1.5px;line-height:1.05;overflow-wrap:anywhere}.result-error{border-left-color:var(--danger)}.result-error .result-word{color:var(--danger);font-size:1.1rem;font-weight:600;line-height:1.4}.result-multi{display:flex;flex-wrap:wrap;gap:10px}.result-chip{background:#111;border:1px solid #303030;padding:12px 16px;border-left:3px solid var(--accent)}.chip-code{font-size:.58rem;color:#777;letter-spacing:1.5px;margin-bottom:4px}.chip-word{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;color:var(--accent)}
-.generator-launcher{width:100%;display:flex;align-items:center;justify-content:space-between;gap:18px;background:var(--surface2);border:1px solid var(--border);padding:20px 22px;transition:border-color .2s,background .2s}.generator-launcher:hover{border-color:#555;background:#1b1b1b}.generator-info strong{display:block;font-family:'Syne',sans-serif;font-size:1.05rem;margin-bottom:5px}.generator-info span{display:block;color:var(--muted);font-size:.67rem;line-height:1.5}.gen-open{flex:0 0 auto;background:var(--accent);color:#000;border:0;padding:12px 17px;font-weight:700;font-size:.72rem;letter-spacing:.5px;transition:background .15s}.gen-open:hover{background:var(--accent-hover)}
-.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:20px;z-index:1000}.modal-backdrop.open{display:flex}.modal{width:min(620px,100%);background:#121212;border:1px solid #3a3a3a;box-shadow:0 24px 80px rgba(0,0,0,.65);animation:modalIn .18s ease}@keyframes modalIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}.modal-head{display:flex;align-items:center;justify-content:space-between;padding:22px 24px;border-bottom:1px solid #292929}.modal-title{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800}.modal-close{width:36px;height:36px;background:transparent;border:1px solid #333;color:#aaa;font-size:1.15rem;line-height:1}.modal-close:hover{color:#fff;border-color:#666}.modal-body{padding:24px}.modal-label{color:#8c8c8c;font-size:.68rem;letter-spacing:1.8px;text-transform:uppercase;margin-bottom:12px}.word-counts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}.nb-btn{background:#0d0d0d;border:1px solid #343434;color:#aaa;padding:12px 8px;font-size:.72rem;transition:.15s}.nb-btn:hover{border-color:#777;color:#fff}.nb-btn.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700}.generate-main{width:100%;background:var(--accent);border:0;color:#000;padding:15px;font-weight:700;font-size:.78rem;letter-spacing:1px}.generate-main:hover{background:var(--accent-hover)}#passResult{margin-top:18px;background:#0d0d0d;border:1px solid #2f2f2f;padding:18px;min-height:74px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.pass-word{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:700;color:var(--text)}.pass-sep{color:#555}.pass-empty{color:#666;font-size:.68rem;letter-spacing:1.2px}.copy-btn{margin-left:auto;background:transparent;border:1px solid #383838;color:#aaa;font-size:.64rem;padding:7px 11px;letter-spacing:1px;transition:.15s}.copy-btn:hover,.copy-btn.copied{color:var(--accent);border-color:var(--accent)}
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
 
   :root {
@@ -259,6 +256,52 @@
     text-align: center;
   }
   footer a { color: var(--muted); }
+
+  /* ── OUTIL 03 : TESTEUR DE MOT DE PASSE ── */
+  .security-tool { margin-top: 34px; }
+  .security-title { margin: 0 0 10px; color: var(--muted); font-size: .62rem; letter-spacing: 3px; text-transform: uppercase; }
+  .security-open {
+    width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 18px;
+    padding: 17px 18px; background: #0d0d0d; color: var(--text); border: 1px solid #2a2a2a;
+    text-align: left; font-family: inherit; cursor: pointer; transition: border-color .18s, background .18s;
+  }
+  .security-open:hover { border-color: var(--accent); background: #111; }
+  .security-open strong { display: block; font-family: 'Syne', sans-serif; font-size: .9rem; letter-spacing: -.2px; }
+  .security-open span:not(.arrow) { display: block; margin-top: 5px; color: var(--muted); font-size: .61rem; letter-spacing: .4px; }
+  .security-open .arrow { color: var(--accent); font-size: 1.2rem; }
+
+  #securityModal { z-index: 20; }
+  .security-modal {
+    position: relative; width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow-y: auto;
+    background: #0b0b0b; border: 1px solid #303030; padding: 30px;
+    box-shadow: 0 24px 80px rgba(0,0,0,.65);
+  }
+  .security-modal .modal-title { margin-bottom: 8px; }
+  .security-input-wrap { display: flex; margin-top: 24px; border: 1px solid #303030; background: #101010; transition: border-color .18s; }
+  .security-input-wrap:focus-within { border-color: var(--accent); }
+  .security-input {
+    min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; color: var(--text);
+    padding: 15px 14px; font: .78rem 'Space Mono', monospace; letter-spacing: .4px;
+  }
+  .security-input::placeholder { color: #555; }
+  .security-toggle {
+    flex: 0 0 auto; border: 0; border-left: 1px solid #303030; background: transparent; color: var(--muted);
+    padding: 0 13px; font: 700 .58rem 'Space Mono', monospace; letter-spacing: 1px; cursor: pointer;
+  }
+  .security-toggle:hover { color: var(--accent); }
+  .security-result { margin-top: 16px; padding: 22px; border: 1px solid #292929; background: #101010; }
+  .security-bits { font-family: 'Syne', sans-serif; font-size: 2.25rem; line-height: 1; font-weight: 700; color: var(--text); }
+  .security-bits small { font: 700 .62rem 'Space Mono', monospace; color: var(--muted); letter-spacing: 1px; }
+  .security-verdict { margin-top: 9px; color: var(--accent); font: 700 .64rem 'Space Mono', monospace; letter-spacing: 2px; }
+  .security-bar { height: 5px; margin-top: 18px; background: #252525; overflow: hidden; }
+  .security-bar-fill { width: 0; height: 100%; background: var(--accent); transition: width .3s ease; }
+  .security-detail { margin-top: 12px; color: var(--muted); font-size: .6rem; line-height: 1.7; }
+  .security-note { margin-top: 17px; padding-top: 15px; border-top: 1px solid #222; color: #666; font-size: .57rem; line-height: 1.7; }
+  @media (max-width: 520px) {
+    .security-modal { padding: 22px; }
+    .security-input-wrap { display: block; }
+    .security-toggle { width: 100%; padding: 11px; border-left: 0; border-top: 1px solid #303030; }
+  }
 </style>
 </head>
 <body>
@@ -293,6 +336,44 @@
     <span class="arrow">→</span>
   </button>
   <div id="passResult"><span class="pass-empty">— aucune passphrase générée —</span></div>
+</div>
+
+
+<div class="security-tool">
+  <p class="security-title">03 · Tester un mot de passe</p>
+  <button class="security-open" type="button" onclick="openSecurityTester()">
+    <div>
+      <strong>Tester la sécurité de mon mot de passe</strong>
+      <span>Analyse locale · aucun mot de passe envoyé</span>
+    </div>
+    <span class="arrow">→</span>
+  </button>
+</div>
+
+<div class="modal-backdrop" id="securityModal" onclick="securityBackdropClick(event)">
+  <div class="security-modal" role="dialog" aria-modal="true" aria-labelledby="securityTitle">
+    <button class="modal-close" type="button" onclick="closeSecurityTester()" aria-label="Fermer">×</button>
+    <div class="modal-kicker">Analyse locale</div>
+    <h2 class="modal-title" id="securityTitle">Quelle est la force de ton mot de passe ?</h2>
+    <p class="modal-desc">Le calcul est effectué directement dans ton navigateur. Rien n'est envoyé à un serveur.</p>
+
+    <div class="security-input-wrap">
+      <input id="securityPassword" class="security-input" type="password" autocomplete="off" spellcheck="false" placeholder="Entre ton mot de passe…">
+      <button class="security-toggle" type="button" onclick="toggleSecurityPassword(this)">AFFICHER</button>
+    </div>
+
+    <div id="securityResult" class="security-result">
+      <div class="security-bits" id="securityBits">0 <small>bits</small></div>
+      <div class="security-verdict" id="securityVerdict">—</div>
+      <div class="security-bar"><div class="security-bar-fill" id="securityBar"></div></div>
+      <div class="security-detail" id="securityDetail"></div>
+    </div>
+
+    <div class="security-note">
+      Estimation théorique : elle ne remplace pas une analyse de fuite ou de dictionnaire.
+      Pour un mot de passe Diceware généré par cet outil, la sécurité dépend surtout du nombre de mots choisis.
+    </div>
+  </div>
 </div>
 
 <div class="modal-backdrop" id="generatorModal" onclick="modalBackdropClick(event)">
@@ -345,7 +426,7 @@ function closeGenerator() {
   document.body.style.overflow = '';
 }
 function modalBackdropClick(e) { if (e.target.id === 'generatorModal') closeGenerator(); }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeGenerator(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeGenerator(); closeSecurityTester(); } });
 
 function hexToBytes(hex) {
   const out = new Uint8Array(hex.length / 2);
@@ -649,6 +730,82 @@ function fallbackCopy(text, btn, onSuccess) {
     document.body.removeChild(area);
   }
 }
+
+
+function openSecurityTester() {
+  document.getElementById('securityModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  const input = document.getElementById('securityPassword');
+  input.value = '';
+  document.getElementById('securityResult').style.display = 'none';
+  setTimeout(() => input.focus(), 50);
+}
+
+function closeSecurityTester() {
+  document.getElementById('securityModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function securityBackdropClick(e) {
+  if (e.target.id === 'securityModal') closeSecurityTester();
+}
+
+function toggleSecurityPassword(btn) {
+  const input = document.getElementById('securityPassword');
+  const visible = input.type === 'text';
+  input.type = visible ? 'password' : 'text';
+  btn.textContent = visible ? 'AFFICHER' : 'MASQUER';
+}
+
+function testPasswordSecurity(password) {
+  if (!password) return { bits: 0, verdict: 'ENTRE UN MOT DE PASSE', detail: '' };
+
+  // Estimation par espace de caractères : volontairement locale et transparente.
+  let pool = 0;
+  const classes = [];
+  if (/[a-zà-öø-ÿ]/.test(password)) { pool += 26; classes.push('minuscules'); }
+  if (/[A-ZÀ-ÖØ-Ý]/.test(password)) { pool += 26; classes.push('majuscules'); }
+  if (/[0-9]/.test(password)) { pool += 10; classes.push('chiffres'); }
+  if (/[^A-Za-zÀ-ÖØ-öø-ÿ0-9]/.test(password)) { pool += 32; classes.push('symboles'); }
+
+  const bits = Math.round(password.length * Math.log2(pool) * 10) / 10;
+
+  let verdict;
+  if (bits < 40) verdict = '❌ TROP FAIBLE';
+  else if (bits < 60) verdict = '⚠️ FAIBLE';
+  else if (bits < 80) verdict = '✓ CORRECT';
+  else if (bits < 100) verdict = '✓✓ FORT';
+  else verdict = '✓✓✓ TRÈS FORT';
+
+  return {
+    bits,
+    verdict,
+    detail: `${password.length} caractères · ${classes.join(' + ')} · espace estimé : ${pool} possibilités/caractère`
+  };
+}
+
+function updateSecurityResult() {
+  const password = document.getElementById('securityPassword').value;
+  const result = document.getElementById('securityResult');
+  const bitsEl = document.getElementById('securityBits');
+  const verdictEl = document.getElementById('securityVerdict');
+  const detailEl = document.getElementById('securityDetail');
+  const bar = document.getElementById('securityBar');
+
+  if (!password) {
+    result.style.display = 'none';
+    return;
+  }
+
+  const r = testPasswordSecurity(password);
+  result.style.display = 'block';
+  bitsEl.innerHTML = `${r.bits} <small>bits</small>`;
+  verdictEl.textContent = r.verdict;
+  detailEl.textContent = r.detail;
+  bar.style.width = `${Math.min(100, r.bits)}%`;
+}
+
+document.getElementById('securityPassword').addEventListener('input', updateSecurityResult);
 
 loadDict();
 refreshDrandStatus();
