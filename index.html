@@ -5,309 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Diceware FR — Recherche</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
-
-  :root {
-    --bg: #0d0d0d;
-    --surface: #141414;
-    --border: #2a2a2a;
-    --accent: #e8ff47;
-    --accent2: #ff6b35;
-    --text: #f0f0f0;
-    --muted: #555;
-    --card: #1a1a1a;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Space Mono', monospace;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  header {
-    width: 100%;
-    max-width: 900px;
-    padding: 60px 24px 32px;
-    text-align: center;
-  }
-
-  h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(2.5rem, 8vw, 5rem);
-    font-weight: 800;
-    letter-spacing: -2px;
-    line-height: 1;
-    margin-bottom: 8px;
-  }
-  h1 span { color: var(--accent); }
-
-  .subtitle {
-    color: var(--muted);
-    font-size: 0.75rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 48px;
-  }
-
-  .search-wrap {
-    width: 100%;
-    max-width: 600px;
-    padding: 0 24px;
-    margin-bottom: 40px;
-    position: relative;
-  }
-
-  .search-label {
-    display: block;
-    font-size: 0.65rem;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 10px;
-  }
-
-  .search-box {
-    display: flex;
-    gap: 0;
-    border: 2px solid var(--border);
-    border-radius: 0;
-    overflow: hidden;
-    transition: border-color 0.2s;
-  }
-  .search-box:focus-within { border-color: var(--accent); }
-
-  #searchInput {
-    flex: 1;
-    background: var(--surface);
-    border: none;
-    outline: none;
-    color: var(--text);
-    font-family: 'Space Mono', monospace;
-    font-size: 1.5rem;
-    padding: 16px 20px;
-    letter-spacing: 4px;
-    width: 100%;
-  }
-  #searchInput::placeholder { color: var(--muted); letter-spacing: 2px; }
-
-  .dice-btn {
-    background: var(--accent);
-    border: none;
-    cursor: pointer;
-    padding: 16px 20px;
-    font-size: 1.2rem;
-    color: #000;
-    transition: background 0.15s;
-    flex-shrink: 0;
-  }
-  .dice-btn:hover { background: var(--accent2); }
-
-  #result {
-    width: 100%;
-    max-width: 600px;
-    padding: 0 24px;
-    margin-bottom: 48px;
-    min-height: 120px;
-  }
-
-  .result-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    padding: 28px 32px;
-    border-left: 4px solid var(--accent);
-    animation: slideIn 0.15s ease;
-  }
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-6px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .result-code {
-    font-size: 0.65rem;
-    letter-spacing: 3px;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-
-  .result-word {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(2rem, 10vw, 4rem);
-    font-weight: 800;
-    color: var(--accent);
-    letter-spacing: -1px;
-  }
-
-  .result-error {
-    border-left-color: var(--accent2);
-  }
-  .result-error .result-word {
-    color: var(--accent2);
-    font-size: 1.2rem;
-    font-weight: 400;
-  }
-
-  .result-multi {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  .result-chip {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 12px 18px;
-    border-left: 3px solid var(--accent);
-  }
-  .chip-code { font-size: 0.6rem; color: var(--muted); letter-spacing: 2px; }
-  .chip-word {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--accent);
-  }
-
-  /* Passphrase generator */
-  .passgen {
-    width: 100%;
-    max-width: 600px;
-    padding: 0 24px;
-    margin-bottom: 48px;
-  }
-
-  .passgen-title {
-    font-size: 0.65rem;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 12px;
-  }
-
-  .passgen-controls {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-  }
-
-  .nb-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    font-family: 'Space Mono', monospace;
-    font-size: 0.75rem;
-    padding: 8px 14px;
-    cursor: pointer;
-    transition: all 0.15s;
-    letter-spacing: 1px;
-  }
-  .nb-btn.active, .nb-btn:hover {
-    background: var(--accent);
-    color: #000;
-    border-color: var(--accent);
-  }
-
-  .gen-btn {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: 'Space Mono', monospace;
-    font-size: 0.75rem;
-    padding: 8px 20px;
-    cursor: pointer;
-    transition: all 0.15s;
-    letter-spacing: 1px;
-    margin-left: auto;
-  }
-  .gen-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  #passResult {
-    background: var(--card);
-    border: 1px solid var(--border);
-    padding: 20px 24px;
-    min-height: 60px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .pass-word {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: var(--text);
-  }
-  .pass-sep { color: var(--muted); font-size: 1rem; }
-  .pass-empty { color: var(--muted); font-size: 0.75rem; letter-spacing: 2px; }
-
-  .copy-btn {
-    margin-left: auto;
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    font-family: 'Space Mono', monospace;
-    font-size: 0.65rem;
-    padding: 6px 12px;
-    cursor: pointer;
-    letter-spacing: 1px;
-    flex-shrink: 0;
-    transition: all 0.15s;
-  }
-  .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
-  .copy-btn.copied { color: var(--accent); border-color: var(--accent); }
-
-  /* Status */
-  #status {
-    text-align: center;
-    font-size: 0.65rem;
-    letter-spacing: 2px;
-    color: var(--muted);
-    margin-bottom: 32px;
-    text-transform: uppercase;
-  }
-  .dot {
-    display: inline-block;
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--muted);
-    margin-right: 8px;
-    vertical-align: middle;
-    animation: blink 1s infinite;
-  }
-  .dot.ok { background: var(--accent); animation: none; }
-  .dot.err { background: var(--accent2); animation: none; }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
-
-  /* Quick tip */
-  .tip {
-    font-size: 0.65rem;
-    color: var(--muted);
-    margin-top: 10px;
-    letter-spacing: 1px;
-  }
-
-  footer {
-    margin-top: auto;
-    padding: 24px;
-    font-size: 0.6rem;
-    color: var(--muted);
-    letter-spacing: 1px;
-    text-align: center;
-  }
-  footer a { color: var(--muted); }
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@600;700;800&display=swap');
+:root{--bg:#090909;--surface:#111;--surface2:#171717;--border:#303030;--accent:#e8ff47;--accent-hover:#d9f52f;--danger:#ff7043;--text:#f5f5f5;--muted:#8d8d8d;--muted2:#626262}
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{background:radial-gradient(circle at 50% -10%,#151515 0%,var(--bg) 42%);color:var(--text);font-family:'Space Mono',monospace;min-height:100vh;display:flex;flex-direction:column;align-items:center}button,input{font:inherit}button{cursor:pointer}
+header{width:min(760px,calc(100% - 40px));padding:64px 0 34px;text-align:center}h1{font-family:'Syne',sans-serif;font-size:clamp(3.1rem,10vw,5.8rem);font-weight:800;letter-spacing:-3px;line-height:.95;margin-bottom:15px}h1 span{color:var(--accent)}.subtitle{color:#8b8b8b;font-size:.72rem;letter-spacing:2.4px;text-transform:uppercase;line-height:1.8}
+#status{width:min(760px,calc(100% - 40px));text-align:center;font-size:.7rem;letter-spacing:1.8px;color:var(--muted);margin:4px 0 34px;text-transform:uppercase}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--muted);margin-right:9px;vertical-align:middle;animation:blink 1s infinite}.dot.ok{background:var(--accent);animation:none}.dot.err{background:var(--danger);animation:none}@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+main{width:min(760px,calc(100% - 40px));padding-bottom:40px}.section{margin-bottom:30px}.section-label{display:flex;align-items:center;gap:10px;color:#a0a0a0;font-size:.68rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:11px}.section-label::before{content:'';width:18px;height:2px;background:var(--accent)}
+.search-box{display:flex;border:1px solid #3a3a3a;background:var(--surface);transition:border-color .2s,box-shadow .2s}.search-box:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,255,71,.08)}#searchInput{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--text);font-family:'Space Mono',monospace;font-size:1.45rem;padding:18px 20px;letter-spacing:4px}#searchInput::placeholder{color:#555;letter-spacing:2px}.dice-btn{width:68px;background:var(--accent);border:0;color:#000;font-size:1.25rem;transition:background .15s,transform .15s}.dice-btn:hover{background:var(--accent-hover)}.dice-btn:active{transform:scale(.97)}.tip{font-size:.68rem;color:var(--muted2);margin-top:9px;line-height:1.7}
+#result{min-height:116px;margin-bottom:30px}.result-card{background:linear-gradient(135deg,#191919,#151515);border:1px solid var(--border);border-left:4px solid var(--accent);padding:26px 28px;animation:slideIn .18s ease}@keyframes slideIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}.result-code{font-size:.67rem;letter-spacing:2.5px;color:#777;text-transform:uppercase;margin-bottom:7px}.result-word{font-family:'Syne',sans-serif;font-size:clamp(2.4rem,9vw,4.2rem);font-weight:800;color:var(--accent);letter-spacing:-1.5px;line-height:1.05;overflow-wrap:anywhere}.result-error{border-left-color:var(--danger)}.result-error .result-word{color:var(--danger);font-size:1.1rem;font-weight:600;line-height:1.4}.result-multi{display:flex;flex-wrap:wrap;gap:10px}.result-chip{background:#111;border:1px solid #303030;padding:12px 16px;border-left:3px solid var(--accent)}.chip-code{font-size:.58rem;color:#777;letter-spacing:1.5px;margin-bottom:4px}.chip-word{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;color:var(--accent)}
+.generator-launcher{width:100%;display:flex;align-items:center;justify-content:space-between;gap:18px;background:var(--surface2);border:1px solid var(--border);padding:20px 22px;transition:border-color .2s,background .2s}.generator-launcher:hover{border-color:#555;background:#1b1b1b}.generator-info strong{display:block;font-family:'Syne',sans-serif;font-size:1.05rem;margin-bottom:5px}.generator-info span{display:block;color:var(--muted);font-size:.67rem;line-height:1.5}.gen-open{flex:0 0 auto;background:var(--accent);color:#000;border:0;padding:12px 17px;font-weight:700;font-size:.72rem;letter-spacing:.5px;transition:background .15s}.gen-open:hover{background:var(--accent-hover)}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:20px;z-index:1000}.modal-backdrop.open{display:flex}.modal{width:min(620px,100%);background:#121212;border:1px solid #3a3a3a;box-shadow:0 24px 80px rgba(0,0,0,.65);animation:modalIn .18s ease}@keyframes modalIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}.modal-head{display:flex;align-items:center;justify-content:space-between;padding:22px 24px;border-bottom:1px solid #292929}.modal-title{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800}.modal-close{width:36px;height:36px;background:transparent;border:1px solid #333;color:#aaa;font-size:1.15rem;line-height:1}.modal-close:hover{color:#fff;border-color:#666}.modal-body{padding:24px}.modal-label{color:#8c8c8c;font-size:.68rem;letter-spacing:1.8px;text-transform:uppercase;margin-bottom:12px}.word-counts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}.nb-btn{background:#0d0d0d;border:1px solid #343434;color:#aaa;padding:12px 8px;font-size:.72rem;transition:.15s}.nb-btn:hover{border-color:#777;color:#fff}.nb-btn.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700}.generate-main{width:100%;background:var(--accent);border:0;color:#000;padding:15px;font-weight:700;font-size:.78rem;letter-spacing:1px}.generate-main:hover{background:var(--accent-hover)}#passResult{margin-top:18px;background:#0d0d0d;border:1px solid #2f2f2f;padding:18px;min-height:74px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.pass-word{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:700;color:var(--text)}.pass-sep{color:#555}.pass-empty{color:#666;font-size:.68rem;letter-spacing:1.2px}.copy-btn{margin-left:auto;background:transparent;border:1px solid #383838;color:#aaa;font-size:.64rem;padding:7px 11px;letter-spacing:1px;transition:.15s}.copy-btn:hover,.copy-btn.copied{color:var(--accent);border-color:var(--accent)}
+footer{margin-top:auto;padding:24px 20px 30px;font-size:.6rem;color:#555;letter-spacing:.8px;text-align:center}footer a{color:#777}footer a:hover{color:var(--accent)}
+@media(max-width:600px){header{padding-top:42px}main,#status,header{width:min(100% - 28px,760px)}#searchInput{font-size:1.15rem;padding:16px 14px}.dice-btn{width:58px}.result-card{padding:22px 20px}.generator-launcher{align-items:flex-start;flex-direction:column}.gen-open{width:100%}.word-counts{grid-template-columns:repeat(2,1fr)}.modal-body{padding:20px}.pass-word{font-size:1.05rem}}
 </style>
 </head>
 <body>
 
 <header>
   <h1>DICE<span>WARE</span></h1>
-  <p class="subtitle">Liste française — 7776 mots — 5 jets de dés</p>
+  <p class="subtitle">Liste française · 7 776 mots · 5 jets de dés</p>
 </header>
 
 <div id="status">
@@ -315,35 +31,52 @@
   <span id="statusText">Chargement de la liste…</span>
 </div>
 
-<!-- RECHERCHE PAR CODE -->
-<div class="search-wrap">
-  <label class="search-label" for="searchInput">Entrez un code (ex: 23456) ou plusieurs séparés par espaces</label>
-  <div class="search-box">
-    <input type="text" id="searchInput" placeholder="11111" maxlength="5" inputmode="numeric" autocomplete="off" spellcheck="false">
-    <button class="dice-btn" title="Lancer les dés" onclick="rollDice()">🎲</button>
-  </div>
-  <p class="tip">Codes valides : 5 chiffres de 1 à 6 uniquement (ex: 13456, 24512…)</p>
-</div>
+<main>
+  <section class="section">
+    <div class="section-label">Recherche par code</div>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="12345" maxlength="5" inputmode="numeric" autocomplete="off" spellcheck="false" aria-label="Code Diceware">
+      <button class="dice-btn" title="Générer un code aléatoire" aria-label="Générer un code aléatoire" onclick="rollDice()">🎲</button>
+    </div>
+    <p class="tip">Entrez 5 chiffres compris entre 1 et 6. Vous pouvez aussi entrer plusieurs codes séparés par des espaces.</p>
+  </section>
 
-<div id="result"></div>
+  <div id="result"></div>
 
-<!-- GÉNÉRATEUR DE PASSPHRASE -->
-<div class="passgen">
-  <p class="passgen-title">Générateur de passphrase</p>
-  <div class="passgen-controls">
-    <button class="nb-btn" onclick="setNbWords(4)">4 mots</button>
-    <button class="nb-btn active" onclick="setNbWords(5)">5 mots</button>
-    <button class="nb-btn" onclick="setNbWords(6)">6 mots</button>
-    <button class="nb-btn" onclick="setNbWords(7)">7 mots</button>
-    <button class="gen-btn" onclick="generatePass()">↻ Générer</button>
-  </div>
-  <div id="passResult">
-    <span class="pass-empty">— cliquez sur Générer —</span>
+  <section class="section">
+    <div class="section-label">Passphrase</div>
+    <button class="generator-launcher" onclick="openGenerator()" type="button">
+      <span class="generator-info">
+        <strong>Générateur de passphrase</strong>
+        <span>Créez une phrase de passe aléatoire à partir de la liste Diceware.</span>
+      </span>
+      <span class="gen-open">Ouvrir le générateur →</span>
+    </button>
+  </section>
+</main>
+
+<div class="modal-backdrop" id="generatorModal" role="dialog" aria-modal="true" aria-labelledby="generatorTitle" onclick="backdropClose(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="generatorTitle">Générer une passphrase</div>
+      <button class="modal-close" type="button" onclick="closeGenerator()" aria-label="Fermer">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-label">Nombre de mots</div>
+      <div class="word-counts">
+        <button class="nb-btn" onclick="setNbWords(4)" type="button">4 mots</button>
+        <button class="nb-btn active" onclick="setNbWords(5)" type="button">5 mots</button>
+        <button class="nb-btn" onclick="setNbWords(6)" type="button">6 mots</button>
+        <button class="nb-btn" onclick="setNbWords(7)" type="button">7 mots</button>
+      </div>
+      <button class="generate-main" onclick="generatePass()" type="button">↻ GÉNÉRER UNE NOUVELLE PASSPHRASE</button>
+      <div id="passResult"><span class="pass-empty">Choisissez le nombre de mots puis générez une passphrase.</span></div>
+    </div>
   </div>
 </div>
 
 <footer>
-  Liste par <a href="https://github.com/chmduquesne/diceware-fr" target="_blank">Christophe-Marie Duquesne</a> · CC-BY-3.0
+  Liste par <a href="https://github.com/chmduquesne/diceware-fr" target="_blank" rel="noopener">Christophe-Marie Duquesne</a> · CC-BY-3.0
 </footer>
 
 <script>
@@ -443,10 +176,28 @@ document.getElementById('searchInput').addEventListener('keydown', e => {
 });
 document.getElementById('searchInput').addEventListener('input', search);
 
+function openGenerator() {
+  document.getElementById('generatorModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeGenerator() {
+  document.getElementById('generatorModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function backdropClose(e) {
+  if (e.target === document.getElementById('generatorModal')) closeGenerator();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeGenerator();
+});
+
 function setNbWords(n) {
   nbWords = n;
   document.querySelectorAll('.nb-btn').forEach(b => {
-    b.classList.toggle('active', b.textContent === n + ' mots');
+    b.classList.toggle('active', b.textContent.trim() === n + ' mots');
   });
 }
 
